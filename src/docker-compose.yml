@@ -1,4 +1,4 @@
----
+
 version: "2.1"
 services:
   jackett:
@@ -11,8 +11,8 @@ services:
       - AUTO_UPDATE=true #optional
       - RUN_OPTS= #optional
     volumes:
-      - /path/to/data:/config
-      - /path/to/blackhole:/downloads
+      - /usr/src:/config
+      - /usr/src:/downloads
     ports:
       - 9117:9117
     restart: unless-stopped
