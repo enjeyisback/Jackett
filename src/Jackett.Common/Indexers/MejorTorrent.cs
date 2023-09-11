@@ -26,21 +26,14 @@ namespace Jackett.Common.Indexers
         public override string Id => "mejortorrent";
         public override string Name => "MejorTorrent";
         public override string Description => "MejorTorrent - Hay veces que un torrent viene mejor! :)";
-        public override string SiteLink { get; protected set; } = "https://www2.mejortorrent.rip/";
+        public override string SiteLink { get; protected set; } = "https://www6.mejortorrent.rip/";
         public override string[] AlternativeSiteLinks => new[]
         {
-            "https://www2.mejortorrent.rip/",
-            "https://mejortorrent.unblockit.asia/"
+            "https://www6.mejortorrent.rip/",
+            "https://mejortorrent.unblockit.esq/"
         };
         public override string[] LegacySiteLinks => new[]
         {
-            "https://www.mejortorrentt.net/",
-            "http://www.mejortorrent.org/",
-            "http://www.mejortorrent.tv/",
-            "http://www.mejortorrentt.com/",
-            "https://www.mejortorrentt.org/",
-            "http://www.mejortorrentt.org/",
-            "https://www.mejortorrents.net/",
             "https://www.mejortorrents1.com/",
             "https://www.mejortorrents1.net/",
             "https://www.mejortorrento.com/",
@@ -52,19 +45,23 @@ namespace Jackett.Common.Indexers
             "https://www.mejortorrento.info/",
             "https://mejortorrent.nocensor.work/",
             "https://www.mejortorrentes.net/",
-            "https://mejortorrent.unblockit.cam/",
             "https://mejortorrent.nocensor.biz/",
-            "https://mejortorrent.unblockit.day/",
-            "https://mejortorrent.unblockit.llc/",
             "https://www.mejortorrentes.org/",
-            "https://mejortorrent.unblockit.blue/",
             "https://mejortorrent.nocensor.sbs/",
             "https://mejortorrent.unblockit.name/",
             "https://mejortorrent.unblockit.bio/",
             "https://mejortorrent.wtf/",
             "https://mejortorrent.unblockit.boo/",
             "https://mejortorrent.unblockit.click/",
-            "https://www1.mejortorrent.rip/"
+            "https://www1.mejortorrent.rip/",
+            "https://mejortorrent.unblockit.asia/",
+            "https://www2.mejortorrent.rip/",
+            "https://mejortorrent.unblockit.mov/",
+            "https://www3.mejortorrent.rip/",
+            "https://www4.mejortorrent.rip/",
+            "https://mejortorrent.unblockit.rsvp/",
+            "https://mejortorrent.unblockit.vegas/",
+            "https://www5.mejortorrent.rip/",
         };
         public override string Language => "es-ES";
         public override string Type => "public";
@@ -541,14 +538,12 @@ namespace Jackett.Common.Indexers
             var cat = MejorTorrentCatType.Otro;
             if (mejortorrentCat == null)
             {
-                if (detailsStr.Contains("peliculas_extend"))
+                if (detailsStr.Contains("pelicula"))
                     cat = MejorTorrentCatType.Pelicula;
-                else if (detailsStr.Contains("series_extend"))
+                else if (detailsStr.Contains("serie"))
                     cat = MejorTorrentCatType.Serie;
-                else if (detailsStr.Contains("musica_extend"))
+                else if (detailsStr.Contains("musica"))
                     cat = MejorTorrentCatType.Musica;
-                else if (detailsStr.Contains("pelicula"))
-                    cat = MejorTorrentCatType.Pelicula;
             }
             else if (mejortorrentCat.Equals(MejorTorrentCatType.Pelicula) ||
                      mejortorrentCat.Equals(MejorTorrentCatType.Serie) ||

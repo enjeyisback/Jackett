@@ -6,10 +6,10 @@ language: de-DE
 type: private
 encoding: UTF-8
 links:
-  - https://projekt.dark-shadow.me/
+  - https://dark-shadow.me/
 legacylinks:
   - https://dark-shadow.ml/
-  - https://dark-shadow.me/
+  - https://projekt.dark-shadow.me/
 
 caps:
   categorymappings:
@@ -109,7 +109,8 @@ login:
   error:
     - selector: div#login_error
   test:
-    path: selection.php
+    path: index.php
+    selector: a[href="logout.php"]
 
 search:
   paths:
@@ -138,6 +139,8 @@ search:
       selector: div.kat_cat_pic_name_b
     categorydesc:
       text: "{{ .Result.category_p1 }} {{ .Result.category_p2 }}"
+      optional: true
+      default: Internal Sonstiges
     title:
       selector: a.selection_a
       filters:

@@ -37,7 +37,8 @@ namespace Jackett.Common.Indexers
             "https://ipt.workisboring.net/",
             "https://ipt.lol/",
             "https://ipt.cool/",
-            "https://ipt.world/"
+            "https://ipt.world/",
+            "https://ipt.octopus.town/"
         };
         public override string[] LegacySiteLinks => new[]
         {
@@ -180,6 +181,13 @@ namespace Jackett.Common.Indexers
             caps.Categories.AddCategoryMapping(84, TorznabCatType.XXXImageSet, "XXX/Pics/Wallpapers");
 
             return caps;
+        }
+
+        public override void LoadValuesFromJson(JToken jsonConfig, bool useProtectionService = false)
+        {
+            base.LoadValuesFromJson(jsonConfig, useProtectionService);
+
+            webclient?.AddTrustedCertificate(new Uri(SiteLink).Host, "44E390F897BC01083CE3DB0E8266A210735470E3"); // for *.octopus.town  expired 02/Sep/23
         }
 
         public override async Task<IndexerConfigurationStatus> ApplyConfiguration(JToken configJson)

@@ -6,7 +6,9 @@ language: zh-CN
 type: private
 encoding: UTF-8
 links:
-  - http://hdmayi.com/ # does not support https properly
+  - https://hdmayi.com/
+legacylinks:
+  - http://hdmayi.com/
 
 caps:
   categorymappings:
@@ -171,4 +173,4 @@ search:
     description:
       selector: td.rowfollow:nth-child(2)
       remove: a, b, font, img, span
-# NexusPHP v1.7.29 2022-10-12
+# NexusPHP v1.8.3 2023-05-13

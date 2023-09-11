@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AngleSharp.Html.Parser;
+using Jackett.Common.Extensions;
 using Jackett.Common.Helpers;
 using Jackett.Common.Models;
 using Jackett.Common.Models.IndexerConfig;
@@ -13,7 +14,6 @@ using Jackett.Common.Services.Interfaces;
 using Jackett.Common.Utils.Clients;
 using Newtonsoft.Json.Linq;
 using NLog;
-using static System.Net.WebRequestMethods;
 using WebClient = Jackett.Common.Utils.Clients.WebClient;
 
 namespace Jackett.Common.Indexers
@@ -23,28 +23,26 @@ namespace Jackett.Common.Indexers
     {
         public override string Id => "cinecalidad";
         public override string Name => "Cinecalidad";
-        public override string Description => "Películas Full HD en Latino Dual.";
-        public override string SiteLink { get; protected set; } = "https://www.cinecalidad.gs/";
+        public override string Description => "Películas Full UHD/HD en Latino Dual.";
+        public override string SiteLink { get; protected set; } = "https://ww.cinecalidad.foo/";
         public override string[] LegacySiteLinks => new[]
         {
-            "https://cinecalidad.website/",
-            "https://www.cinecalidad.to/",
-            "https://www.cinecalidad.im/", // working but outdated, maybe copycat
-            "https://www.cinecalidad.is/",
-            "https://www.cinecalidad.li/",
-            "https://www.cinecalidad.eu/",
-            "https://cinecalidad.unbl0ck.xyz/",
-            "https://cinecalidad.u4m.club/",
             "https://cinecalidad.mrunblock.icu/",
-            "https://cinecalidad3.com/",
-            "https://www5.cine-calidad.com/",
             "https://v3.cine-calidad.com/",
             "https://www.cine-calidad.com/",
             "https://www.cinecalidad.lat/",
             "https://cinecalidad.dev/",
             "https://cinecalidad.ms/",
             "https://www3.cinecalidad.ms/",
-            "https://ww1.cinecalidad.ms/"
+            "https://ww1.cinecalidad.ms/",
+            "https://www.cinecalidad.gs/",
+            "https://www.cinecalidad.tf/",
+            "https://wvw.cinecalidad.tf/",
+            "https://vww.cinecalidad.tf/",
+            "https://wwv.cinecalidad.tf/",
+            "https://www.cinecalidad.foo/",
+            "https://vww.cinecalidad.foo/",
+            "https://vw.cinecalidad.foo/",
         };
         public override string Language => "es-419";
         public override string Type => "public";
@@ -76,6 +74,7 @@ namespace Jackett.Common.Indexers
             };
 
             caps.Categories.AddCategoryMapping(1, TorznabCatType.MoviesHD);
+            caps.Categories.AddCategoryMapping(2, TorznabCatType.MoviesUHD);
 
             return caps;
         }
@@ -83,6 +82,7 @@ namespace Jackett.Common.Indexers
         public override async Task<IndexerConfigurationStatus> ApplyConfiguration(JToken configJson)
         {
             LoadValuesFromJson(configJson);
+
             var releases = await PerformQuery(new TorznabQuery());
 
             await ConfigureIfOK(string.Empty, releases.Any(), () =>
@@ -99,6 +99,7 @@ namespace Jackett.Common.Indexers
             templateUrl += "{0}?s="; // placeholder for page
 
             var maxPages = MaxLatestPageLimit; // we scrape only 3 pages for recent torrents
+
             var recent = !string.IsNullOrWhiteSpace(query.GetQueryString());
             if (recent)
             {
@@ -123,7 +124,10 @@ namespace Jackett.Common.Indexers
                 releases.AddRange(pageReleases);
 
                 if (pageReleases.Count < 1 && recent)
-                    break; // this is the last page
+                {
+                    // this is the last page
+                    break;
+                }
             }
 
             return releases;
@@ -131,13 +135,25 @@ namespace Jackett.Common.Indexers
 
         public override async Task<byte[]> Download(Uri link)
         {
+            var parser = new HtmlParser();
+
             var results = await RequestWithCookiesAsync(link.ToString());
 
             try
             {
-                var parser = new HtmlParser();
-                var dom = parser.ParseDocument(results.ContentString);
-                var protectedLink = dom.QuerySelector("a:contains('Torrent')").GetAttribute("data-url");
+                var dom = await parser.ParseDocumentAsync(results.ContentString);
+
+                var downloadLink = link.Query.Contains("type=4k")
+                    ? dom.QuerySelector("ul.links a:contains('Bittorrent 4K')")
+                    : dom.QuerySelector("ul.links a:contains('Torrent')");
+
+                var protectedLink = downloadLink?.GetAttribute("data-url");
+
+                if (protectedLink.IsNullOrWhiteSpace())
+                {
+                    throw new Exception($"Invalid download link for {link}");
+                }
+
                 protectedLink = Base64Decode(protectedLink);
                 // turn
                 // link=https://cinecalidad.dev/pelicula/la-chica-salvaje/
@@ -147,7 +163,7 @@ namespace Jackett.Common.Indexers
                 // https://cinecalidad.dev/pelicula/la-chica-salvaje/?link=MS8xMDA5NTIvMQ==
                 var protectedLinkSplit = protectedLink.Split('/');
                 var key = protectedLinkSplit.Last();
-                protectedLink = link.ToString() + "?link=" + key;
+                protectedLink = link.AddQueryParameter("link", key).ToString();
                 protectedLink = GetAbsoluteUrl(protectedLink);
 
                 results = await RequestWithCookiesAsync(protectedLink);
@@ -172,30 +188,40 @@ namespace Jackett.Common.Indexers
                 var parser = new HtmlParser();
                 var dom = parser.ParseDocument(response.ContentString);
 
-                var rows = dom.QuerySelectorAll("article");
+                var rows = dom.QuerySelectorAll("article:has(a.absolute):has(img.rounded)");
+
                 foreach (var row in rows)
                 {
                     if (row.QuerySelector("div.selt") != null)
-                        continue; // we only support movies
+                    {
+                        // we only support movies
+                        continue;
+                    }
 
                     var qLink = row.QuerySelector("a.absolute");
                     var qImg = row.QuerySelector("img.rounded");
                     if (qLink == null || qImg == null)
-                        continue; // skip results without image
+                    {
+                        // skip results without image
+                        continue;
+                    }
 
                     var title = qLink.TextContent.Trim();
                     if (!CheckTitleMatchWords(query.GetQueryString(), title))
-                        continue; // skip if it doesn't contain all words
-                    title += " MULTi/LATiN SPANiSH 1080p BDRip x264";
-                    var poster = new Uri(GetAbsoluteUrl(qImg.GetAttribute("src")));
+                    {
+                        // skip if it doesn't contain all words
+                        continue;
+                    }
+
+                    var poster = new Uri(GetAbsoluteUrl(qImg.GetAttribute("data-src") ?? qImg.GetAttribute("src")));
                     var link = new Uri(qLink.GetAttribute("href"));
 
-                    var release = new ReleaseInfo
+                    releases.Add(new ReleaseInfo
                     {
-                        Title = title,
-                        Link = link,
-                        Details = link,
                         Guid = link,
+                        Details = link,
+                        Link = link,
+                        Title = $"{title} MULTi/LATiN SPANiSH 1080p BDRip x264",
                         Category = new List<int> { TorznabCatType.MoviesHD.ID },
                         Poster = poster,
                         Size = 2147483648, // 2 GB
@@ -204,9 +230,28 @@ namespace Jackett.Common.Indexers
                         Peers = 2,
                         DownloadVolumeFactor = 0,
                         UploadVolumeFactor = 1
-                    };
+                    });
 
-                    releases.Add(release);
+                    if (row.QuerySelector("a[aria-label=\"4K\"]") != null)
+                    {
+                        var link4K = link.AddQueryParameter("type", "4k");
+
+                        releases.Add(new ReleaseInfo
+                        {
+                            Guid = link4K,
+                            Details = link,
+                            Link = link4K,
+                            Title = $"{title} MULTi/LATiN SPANiSH 2160p BDRip x265",
+                            Category = new List<int> { TorznabCatType.MoviesUHD.ID },
+                            Poster = poster,
+                            Size = 10737418240, // 10 GB
+                            Files = 1,
+                            Seeders = 1,
+                            Peers = 2,
+                            DownloadVolumeFactor = 0,
+                            UploadVolumeFactor = 1
+                        });
+                    }
                 }
             }
             catch (Exception ex)
@@ -238,8 +283,12 @@ namespace Jackett.Common.Indexers
         private string GetAbsoluteUrl(string url)
         {
             url = url.Trim();
+
             if (!url.StartsWith("http"))
+            {
                 return SiteLink + url.TrimStart('/');
+            }
+
             return url;
         }
 

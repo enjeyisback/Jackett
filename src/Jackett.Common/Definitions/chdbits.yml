@@ -6,6 +6,8 @@ language: zh-CN
 type: private
 encoding: UTF-8
 links:
+  - https://ptchdbits.co/
+legacylinks:
   - https://chdbits.co/
 
 caps:
@@ -79,6 +81,7 @@ login:
     - selector: td.embedded:has(h2:contains("failed"))
   test:
     path: torrents.php
+    selector: a[href*="logout.php"]
 
 search:
   paths:

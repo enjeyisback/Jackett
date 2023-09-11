@@ -6,6 +6,8 @@ language: zh-CN
 type: private
 encoding: UTF-8
 links:
+  - https://www.hdarea.club/
+legacylinks:
   - https://www.hdarea.co/
 
 caps:
@@ -74,6 +76,7 @@ login:
     cookie: "{{ .Config.cookie }}"
   test:
     path: index.php
+    selector: a[href="usercp.php"]
 
 search:
   paths:

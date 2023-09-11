@@ -57,8 +57,6 @@ settings:
 login:
   path: /api/torrents
   method: get
-  inputs:
-    api_token: "{{ .Config.apikey }}"
   error:
     - selector: a[href*="/login"]
       message:
@@ -66,15 +64,17 @@ login:
 
 search:
   paths:
-    # https://hdinnovations.github.io/UNIT3D-Community-Edition-Docs/api_endpoints.html
-    # https://github.com/HDInnovations/UNIT3D-Community-Edition/blob/master/app/Http/Controllers/API/TorrentController.php
+    # https://github.com/HDInnovations/UNIT3D-Community-Edition/wiki/Torrent-API-(UNIT3D-v7.0.0)
+    # https://github.com/HDInnovations/UNIT3D-Community-Edition/blob/master/app/Http/Controllers/API/TorrentController.php#L349
     - path: "/api/torrents/filter"
       response:
         type: json
 
+  headers:
+    Authorization: ["Bearer {{ .Config.apikey }}"]
+
   inputs:
   # if we have an id based search, add Season and Episode as query in name for UNIT3D < v6.  Else pass S/E Params for UNIT3D >= v6
-    api_token: "{{ .Config.apikey }}"
     $raw: "{{ range .Categories }}&categories[]={{.}}{{end}}"
     name: "{{ .Keywords }}"
     seasonNumber: "{{ .Query.Season }}"

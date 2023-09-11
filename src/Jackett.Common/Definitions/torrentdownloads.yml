@@ -5,21 +5,16 @@ description: "Torrent Downloads (TD) is a Public torrent site for all kinds of c
 language: en-US
 type: public
 encoding: UTF-8
-followredirect: true
 links:
   - https://www.torrentdownloads.pro/
-  - https://torrentdownloads.unblockit.asia/
-  - https://torrentdownloads.mrunblock.life/
+  - https://torrentdownloads.unblockit.esq/
+  - https://torrentdownloads.mrunblock.bond/
   - https://torrentdownloads.unblockninja.com/
-  - https://torrentdownloads.nocensor.click/
+  - https://torrentdownloads.nocensor.cloud/
 legacylinks:
   - https://www.torrentdownloads.me/
   - https://torrentdownloads.nocensor.work/
-  - https://torrentdownloads.unblockit.cam/
   - https://torrentdownloads.nocensor.biz/
-  - https://torrentdownloads.unblockit.day/
-  - https://torrentdownloads.unblockit.llc/
-  - https://torrentdownloads.unblockit.blue/
   - https://torrentdownloads.unblockit.name/
   - https://torrentdownloads.nocensor.sbs/
   - https://torrentdownloads.unblockit.ist/
@@ -36,6 +31,12 @@ legacylinks:
   - https://www.torrentdownloads.info/
   - https://torrentdownloads.mrunblock.guru/
   - https://torrentdownloads.unblockit.click/
+  - https://torrentdownloads.unblockit.asia/
+  - https://torrentdownloads.unblockit.mov/
+  - https://torrentdownloads.mrunblock.life/
+  - https://torrentdownloads.unblockit.rsvp/
+  - https://torrentdownloads.nocensor.click/
+  - https://torrentdownloads.unblockit.vegas/
 
 caps:
   categorymappings:

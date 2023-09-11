@@ -5,21 +5,16 @@ description: "Demonoid is a Semi-Private torrent site for MOVIES / TV / GENERAL"
 language: en-US
 type: semi-private
 encoding: UTF-8
-followredirect: true
 links:
   - https://www.demonoid.is/
   - https://www.dnoid.to/
   - https://www.dnoid.pw/
-  - https://demonoid.unblockit.asia/
+  - https://demonoid.unblockit.esq/
   - https://demonoid.torrentbay.net/
-  - https://demonoid.mrunblock.life/
-  - https://demonoid.nocensor.click/
+  - https://demonoid.mrunblock.bond/
+  - https://demonoid.nocensor.cloud/
 legacylinks:
-  - https://demonoid.unblockit.cam/
   - https://demonoid.nocensor.biz/
-  - https://demonoid.unblockit.day/
-  - https://demonoid.unblockit.llc/
-  - https://demonoid.unblockit.blue/
   - https://demonoid.unblockit.name/
   - https://demonoid.nocensor.sbs/
   - https://demonoid.unblockit.ist/
@@ -42,6 +37,12 @@ legacylinks:
   - https://demonoid.mrunblock.guru/
   - https://demonoid.torrentbay.to/
   - https://demonoid.unblockit.click/
+  - https://demonoid.unblockit.asia/
+  - https://demonoid.unblockit.mov/
+  - https://demonoid.mrunblock.life/
+  - https://demonoid.unblockit.rsvp/
+  - https://demonoid.nocensor.click/
+  - https://demonoid.unblockit.vegas/
 
 caps:
   categorymappings:
@@ -327,7 +328,8 @@ login:
   inputs:
     cookie: "{{ .Config.cookie }}"
   test:
-    path: files/
+    path: /
+    selector: a[href^="/account_handler.php"]
 
 download:
   infohash:

@@ -5,11 +5,11 @@ description: "zetorrents is a FRENCH Public site for MOVIES / TV / GENERAL"
 language: fr-FR
 type: public
 encoding: UTF-8
-# to fetch current domain use https://www.protege-liens.com/Zetorrents
+# to fetch current domain use https://www.protege-torrent.com/Zetorrents
 links:
   - https://www.zetorrents.pw/
-  - https://zetorrents.mrunblock.life/
-  - https://zetorrents.nocensor.click/
+  - https://zetorrents.mrunblock.bond/
+  - https://zetorrents.nocensor.cloud/
 legacylinks:
   - https://www.zetorrents.co/
   - https://www.zetorrents.io/
@@ -29,6 +29,8 @@ legacylinks:
   - https://zetorrents.nocensor.art/
   - https://www.zetorrents.ch/
   - https://zetorrents.mrunblock.guru/
+  - https://zetorrents.mrunblock.life/
+  - https://zetorrents.nocensor.click/
 
 caps:
   categories:

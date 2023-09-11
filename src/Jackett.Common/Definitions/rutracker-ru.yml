@@ -23,7 +23,7 @@ caps:
     - {id: 1674, cat: Movies/HD, desc: "Кинематограф Российские фильмы в 720p (2022)"}
     - {id: 1673, cat: Movies/HD, desc: "Кинематограф Зарубежные фильмы в 1080p (2022)"}
     - {id: 1672, cat: Movies/HD, desc: "Кинематограф Российские фильмы в 1080р (2022)"}
-    - {id: 1656, cat: Movies, desc: "фильмы (2021)"}
+    - {id: 1656, cat: Movies, desc: "Фильмы 2021 года"}
     - {id: 1662, cat: Movies, desc: " |- Зарубежные фильмы (2021)"}
     - {id: 1661, cat: Movies, desc: " |- Российские фильмы (2021)"}
     - {id: 1660, cat: Movies/HD, desc: " |- Зарубежные фильмы в 720p (2021)"}
@@ -58,10 +58,12 @@ caps:
     - {id: 1328, cat: Movies/HD, desc: " |- Российские фильмы в 720p (2017)"}
     - {id: 1329, cat: Movies/HD, desc: " |- Зарубежные фильмы в 1080p (2017)"}
     - {id: 1330, cat: Movies/HD, desc: " |- Российские фильмы в 1080р (2017)"}
+    - {id: 1715, cat: Movies, desc: " |- Зарубежные фильмы до 1990 г."}
+    - {id: 1716, cat: Movies, desc: " |- Советское кино"}
     - {id: 820, cat: Movies/HD, desc: "Зарубежные фильмы"}
-    - {id: 1346, cat: Movies/UHD, desc: " |- [4K | ULTRA HD | 2160p]"}
-    - {id: 843, cat: Movies/HD, desc: " |- Blu-Ray , BDRip 1080p , HDTV 1080 , WEB-DL 1080р"}
-    - {id: 842, cat: Movies/HD, desc: " |- BDRip 720p , WEB-DL 720p , HDTVRip 720p"}
+    - {id: 1346, cat: Movies/UHD, desc: " |- ФИЛЬМЫ (Ultra HD, 2160p)"}
+    - {id: 843, cat: Movies/HD, desc: " |- ФИЛЬМЫ (Full HD, 1080p)"}
+    - {id: 842, cat: Movies/HD, desc: " |- ФИЛЬМЫ (HD, 720p)"}
     - {id: 840, cat: Movies/DVD, desc: " |- DVD5 , DVD9"}
     - {id: 841, cat: Movies/3D, desc: " |- Фильмы в 3D формате"}
     - {id: 825, cat: Movies, desc: " |- Азиатское кино"}
@@ -77,13 +79,12 @@ caps:
     - {id: 832, cat: Movies, desc: " |- Классика зарубежного кино"}
     - {id: 1608, cat: Movies, desc: " |- Классика зарубежного кино (720p, 1080p)"}
     - {id: 1317, cat: Movies, desc: " |- Детские фильмы, сказки, сериалы"}
-    - {id: 837, cat: Movies, desc: " |- Сборники фильмов , Фильмографии"}
     - {id: 838, cat: Movies, desc: " |- Короткометражные фильмы"}
     - {id: 845, cat: Movies, desc: " |- В оригинале"}
     - {id: 1560, cat: Movies, desc: " |- | - фильмы с переводом UKR"}
     - {id: 798, cat: Movies/HD, desc: "Российские фильмы"}
-    - {id: 817, cat: Movies/HD, desc: " |- Blu-Ray , BDRip 1080p , HDTV 1080 , WEB-DL 1080р"}
-    - {id: 818, cat: Movies/HD, desc: " |- BDRip 720p , WEB-DL 720p , HDTVRip 720p"}
+    - {id: 817, cat: Movies/HD, desc: " |- ФИЛЬМЫ (Full HD, 1080p)"}
+    - {id: 818, cat: Movies/HD, desc: " |- ФИЛЬМЫ (HD, 720p)"}
     - {id: 802, cat: Movies/DVD, desc: " |- DVD5 , DVD9"}
     - {id: 801, cat: Movies/3D, desc: " |- Фильмы в 3D формате"}
     - {id: 815, cat: Movies, desc: " |- Боевик , Приключения , Вестерн"}
@@ -94,8 +95,6 @@ caps:
     - {id: 807, cat: Movies, desc: " |- Мистика , Фэнтези"}
     - {id: 806, cat: Movies, desc: " |- Ужасы , Триллер"}
     - {id: 805, cat: Movies, desc: " |- Фантастика"}
-    - {id: 810, cat: Movies, desc: "| - Кино СССР"}
-    - {id: 1609, cat: Movies, desc: " |- Кино СССР (720p, 1080p)"}
     - {id: 1318, cat: Movies, desc: " |- Детские фильмы, сказки, сериалы"}
     - {id: 804, cat: Movies, desc: " |- Сборники фильмов / Фильмографии"}
     # Сериалы TV
@@ -104,32 +103,32 @@ caps:
     - {id: 1709, cat: TV, desc: " |- Отечественные сериалы"}
     - {id: 1711, cat: TV/HD, desc: " |- Отечественные сериалы (HD Video)"}
     - {id: 1705, cat: TV/WEB-DL, desc: " |- WEBRip, WEB-DLRip, SATRip"}
-    - {id: 1086, cat: TV/HD, desc: " |- BDRip 720p , WEB-DL 720p , HDTVRip 720p"}
-    - {id: 1085, cat: TV/HD, desc: " |- BDRip 1080p , HDTV 1080 , WEB-DL 1080р"}
-    - {id: 1551, cat: TV/UHD, desc: " |- [4K | ULTRA HD | 2160p]"}
-    - {id: 1087, cat: TV/SD, desc: " |- DVD5 , DVD9"}
+    - {id: 1086, cat: TV/HD, desc: " |- Зарубежные сериалы (HD Video)"}
+    - {id: 1085, cat: TV/HD, desc: " |- Зарубежные сериалы (Full HD)"}
+    - {id: 1551, cat: TV/UHD, desc: " |- Зарубежные сериалы 4K"}
+    - {id: 1087, cat: TV/SD, desc: " |- Сериалы на DVD"}
     - {id: 1703, cat: TV/WEB-DL, desc: " |- WEBRip, WEB-DLRip, SATRip"}
-    - {id: 1083, cat: TV/HD, desc: " |- BDRip 720p , WEB-DL 720p , HDTVRip 720p"}
-    - {id: 1082, cat: TV/HD, desc: " |- BDRip 1080p , HDTV 1080 , WEB-DL 1080р"}
-    - {id: 1084, cat: TV/SD, desc: " |- DVD5 , DVD9"}
+    - {id: 1083, cat: TV/HD, desc: " |- Отечественные сериалы (HD Video)"}
+    - {id: 1082, cat: TV/HD, desc: " |- Отечественные сериалы (Full HD)"}
+    - {id: 1084, cat: TV/SD, desc: " |- Сериалы на DVD"}
     # Мультипликация Animation
     - {id: 125, cat: TV, desc: "Мультфильмы"}
-    - {id: 1353, cat: TV/HD, desc: " |- BDRip 1080p , HDTV 1080 , WEB-DL 1080р"}
-    - {id: 1355, cat: TV/HD, desc: " |- BDRip 720p , WEB-DL 720p , HDTVRip 720p"}
-    - {id: 1352, cat: TV/SD, desc: " |- DVD5 , DVD9"}
+    - {id: 1353, cat: TV/HD, desc: " |- Мультфильмы 1080р"}
+    - {id: 1355, cat: TV/HD, desc: " |- Мультфильмы 720p"}
+    - {id: 1352, cat: TV/SD, desc: " |- Мультфильмы на DVD"}
     - {id: 1343, cat: TV/Anime, desc: " |- Аниме"}
     - {id: 1025, cat: TV/Anime, desc: " |- Мультфильмы в 3D формате"}
     - {id: 8, cat: TV, desc: "Мультсериалы"}
-    - {id: 1347, cat: TV/HD, desc: " |- BDRip 1080p , HDTV 1080 , WEB-DL 1080р"}
-    - {id: 1348, cat: TV/HD, desc: " |- BDRip 720p , WEB-DL 720p , HDTVRip 720p"}
-    - {id: 1349, cat: TV/SD, desc: " |- DVD5 , DVD9"}
+    - {id: 1347, cat: TV/HD, desc: " |- Мультсериалы 1080р"}
+    - {id: 1348, cat: TV/HD, desc: " |- Мультсериалы 720p"}
+    - {id: 1349, cat: TV/SD, desc: " |- Мультсериалы на DVD"}
     # Документалистика, развлекательные телепередачи, спорт Docs
     - {id: 11, cat: TV/Documentary, desc: "Документальные фильмы и телепередачи"}
     - {id: 12, cat: TV, desc: "Развлекательные телепередачи"}
     - {id: 13, cat: TV/Sport, desc: "Спорт"}
     # Игры Games
     - {id: 60, cat: PC/Games, desc: "Игры для PC"}
-    - {id: 73, cat: Console, desc: " |- Горячие новинки 2020 года (только AAA проекты)"}
+    - {id: 73, cat: Console, desc: " |- Горячие новинки 2021 года (только AAA проекты)"}
     - {id: 61, cat: Console, desc: " |- Онлайн Игры"}
     - {id: 1234, cat: Console, desc: " |- Симуляторы"}
     - {id: 84, cat: Console, desc: " |- Action"}
@@ -166,8 +165,6 @@ caps:
     - {id: 1636, cat: Audio/MP3, desc: " |- Сборники поп музыки (50/50 общие mp3)"}
     - {id: 1643, cat: Audio/MP3, desc: " |- Зарубежная поп музыка (альбомы, синглы mp3)"}
     - {id: 1637, cat: Audio/MP3, desc: " |- Зарубежная поп-музыка (сборники mp3)"}
-    - {id: 1654, cat: Audio/MP3, desc: " |- Eurodance, Disco, Hi-NRG, Technopop (mp3)"}
-    - {id: 1638, cat: Audio/MP3, desc: " |- Eurodance, Disco, Hi-NRG, Technopop (Сборники mp3)"}
     - {id: 1639, cat: Audio/MP3, desc: " |- Club, Dance, Hands Up (Сборники mp3)"}
     - {id: 1640, cat: Audio/Lossless, desc: " |- Зарубежный шансон (mp3, Lossless)"}
     - {id: 1177, cat: Audio/MP3, desc: "Отечественная поп музыка, шансон и авторская песня"}
@@ -175,7 +172,10 @@ caps:
     - {id: 1427, cat: Audio/MP3, desc: " |- Сборники Российской поп музыки"}
     - {id: 1641, cat: Audio/MP3, desc: " |- Шансон и авторская песня (mp3)"}
     - {id: 1561, cat: Audio/MP3, desc: " |- Сборники Русского шансона"}
-    - {id: 1168, cat: Audio/MP3, desc: "Зарубежный ROCK"}
+    - {id: 1598, cat: Audio/MP3, desc: "Отечественный Rock, Metal"}
+    - {id: 1599, cat: Audio/MP3, desc: " |- Отечественный Rock (mp3)"}
+    - {id: 1600, cat: Audio/MP3, desc: " |- Отечественный Metal (mp3 )"}
+    - {id: 1601, cat: Audio/MP3, desc: " |- Сборники Rock, Metal (mp3)"}
     - {id: 1200, cat: Audio/MP3, desc: " |- Classic Rock&Hard Rock"}
     - {id: 1552, cat: Audio/MP3, desc: " |- Progressive&Art-Rock"}
     - {id: 1565, cat: Audio/MP3, desc: " |- Folk-Rock, Folk-Punk, Songwriter"}
@@ -195,7 +195,6 @@ caps:
     - {id: 1586, cat: Audio/MP3, desc: " |- Sludge, Stoner, Post-Metal"}
     - {id: 1587, cat: Audio/MP3, desc: " |- Thrash, Speed"}
     - {id: 1602, cat: Audio/MP3, desc: " |- Сборники Metal"}
-    - {id: 1589, cat: Audio/MP3, desc: "Зарубежные Alternative, Punk, Independent"}
     - {id: 1590, cat: Audio/MP3, desc: " |- Alternative&Nu-metal"}
     - {id: 1591, cat: Audio/MP3, desc: " |- Punk"}
     - {id: 1592, cat: Audio/MP3, desc: " |- Hardcore"}
@@ -204,6 +203,9 @@ caps:
     - {id: 1595, cat: Audio/MP3, desc: " |- Emocore, Post-hardcore, Metalcore, Deathcore"}
     - {id: 1596, cat: Audio/MP3, desc: " |- Gothic Rock&Dark Folk"}
     - {id: 1597, cat: Audio/MP3, desc: " |- Avant-garde, Experimental Rock"}
+    - {id: 1626, cat: Audio/MP3, desc: " |- Зарубежный джаз (mp3)"}
+    - {id: 1627, cat: Audio/MP3, desc: " |- Зарубежный блюз (mp3)"}
+    - {id: 1628, cat: Audio/MP3, desc: " |- Отечественный джаз и блюз (mp3)"}
     - {id: 1610, cat: Audio/MP3, desc: " |- Goa Trance, Psy-Trance"}
     - {id: 1611, cat: Audio/MP3, desc: " |- PsyChill, Ambient, Dub"}
     - {id: 1457, cat: Audio/MP3, desc: " |- Trance"}

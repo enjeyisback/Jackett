@@ -47,8 +47,8 @@ namespace Jackett.Common.Services
             {"icetorrent", "speedapp"},
             {"kickasstorrent-kathow", "kickasstorrents-ws"},
             {"kisssub", "miobt"},
-            {"leaguehd", "lemonhd"},
             {"legacyhd", "reelflix"},
+            {"reelflix", "reelflix-api"},
             {"metaliplayro", "romanianmetaltorrents"},
             {"nnm-club", "noname-club"},
             {"oxtorrent", "torrent911"},
@@ -58,11 +58,13 @@ namespace Jackett.Common.Services
             {"scenefz", "speedapp"},
             {"seals", "greatposterwall"},
             {"tehconnectionme", "anthelion"},
+            {"anthelion", "anthelion-api"},
             {"todotorrents", "dontorrent"},
             {"toros", "bulltorrent"},
             {"torrentgalaxyorg", "torrentgalaxy"},
             {"torrentsurf", "xtremebytes"},
             {"transmithenet", "nebulance"},
+            {"nebulance", "nebulanceapi"},
             {"xtremezone", "speedapp"},
             {"yourexotic", "exoticaz"}
         };
@@ -150,7 +152,8 @@ namespace Jackett.Common.Services
                 _configService.Load(indexer);
             }
 
-            _logger.Info($"Loaded {nativeIndexers.Count} Native indexers: {string.Join(", ", nativeIndexers.Select(i => i.Id))}");
+            _logger.Info($"Loaded {nativeIndexers.Count} Native indexers.");
+            _logger.Debug($"Native indexers loaded: {string.Join(", ", nativeIndexers.Select(i => i.Id))}");
         }
 
         private void InitCardigannIndexers(List<string> path)
@@ -207,7 +210,7 @@ namespace Jackett.Common.Services
                 {
                     if (_indexers.ContainsKey(indexer.Id))
                     {
-                        _logger.Warn($"Ignoring definition ID={indexer.Id}: Indexer already exists");
+                        _logger.Warn($"Ignoring definition ID {indexer.Id}: The indexer already exists");
                         continue;
                     }
                     _indexers.Add(indexer.Id, indexer);
@@ -216,7 +219,8 @@ namespace Jackett.Common.Services
                     cardiganIds.Add(indexer.Id);
                 }
 
-                _logger.Info($"Loaded {cardigannCounter} Cardigann indexers: {string.Join(", ", cardiganIds)}");
+                _logger.Info($"Loaded {cardigannCounter} Cardigann indexers.");
+                _logger.Debug($"Cardigann indexers loaded: {string.Join(", ", cardiganIds)}");
             }
             catch (Exception e)
             {

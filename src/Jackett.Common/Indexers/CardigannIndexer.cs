@@ -14,6 +14,7 @@ using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using AngleSharp.Text;
 using AngleSharp.Xml.Parser;
+using Jackett.Common.Extensions;
 using Jackett.Common.Helpers;
 using Jackett.Common.Models;
 using Jackett.Common.Models.IndexerConfig;
@@ -21,6 +22,7 @@ using Jackett.Common.Services.Interfaces;
 using Jackett.Common.Utils;
 using Jackett.Common.Utils.Clients;
 using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NLog;
 using static Jackett.Common.Models.IndexerConfig.ConfigurationData;
@@ -543,7 +545,7 @@ namespace Jackett.Common.Indexers
             return true; // no error
         }
 
-        protected async Task<bool> DoLogin()
+        protected async Task<bool> DoLogin(string cookies = null)
         {
             var Login = Definition.Login;
 
@@ -555,10 +557,14 @@ namespace Jackett.Common.Indexers
             if (Login.Method == "post")
             {
                 var pairs = new Dictionary<string, string>();
-                foreach (var Input in Definition.Login.Inputs)
+
+                if (Login.Inputs != null && Login.Inputs.Any())
                 {
-                    var value = applyGoTemplateText(Input.Value);
-                    pairs.Add(Input.Key, value);
+                    foreach (var input in Login.Inputs)
+                    {
+                        var value = applyGoTemplateText(input.Value);
+                        pairs.Add(input.Key, value);
+                    }
                 }
 
                 var LoginUrl = resolvePath(Login.Path).ToString();
@@ -584,7 +590,7 @@ namespace Jackett.Common.Indexers
                 // landingResultDocument might not be initiated if the login is caused by a re-login during a query
                 if (landingResultDocument == null)
                 {
-                    var ConfigurationResult = await GetConfigurationForSetup(true);
+                    var ConfigurationResult = await GetConfigurationForSetup(true, cookies);
                     if (ConfigurationResult == null) // got captcha
                     {
                         return false;
@@ -628,18 +634,27 @@ namespace Jackett.Common.Indexers
                     pairs[name] = value;
                 }
 
-                foreach (var Input in Definition.Login.Inputs)
+                if (Login.Inputs != null && Login.Inputs.Any())
                 {
-                    var value = applyGoTemplateText(Input.Value);
-                    var input = Input.Key;
-                    if (Login.Selectors)
+                    foreach (var Input in Login.Inputs)
                     {
-                        var inputElement = landingResultDocument.QuerySelector(Input.Key);
-                        if (inputElement == null)
-                            throw new ExceptionWithConfigData(string.Format("Login failed: No input found using selector {0}", Input.Key), configData);
-                        input = inputElement.GetAttribute("name");
+                        var value = applyGoTemplateText(Input.Value);
+                        var input = Input.Key;
+
+                        if (Login.Selectors)
+                        {
+                            var inputElement = landingResultDocument.QuerySelector(Input.Key);
+
+                            if (inputElement == null)
+                            {
+                                throw new ExceptionWithConfigData($"Login failed: No input found using selector {Input.Key}", configData);
+                            }
+
+                            input = inputElement.GetAttribute("name");
+                        }
+
+                        pairs[input] = value;
                     }
-                    pairs[input] = value;
                 }
 
                 // selector inputs
@@ -772,18 +787,22 @@ namespace Jackett.Common.Indexers
             else if (Login.Method == "get")
             {
                 var queryCollection = new NameValueCollection();
-                foreach (var Input in Definition.Login.Inputs)
+
+                if (Login.Inputs != null && Login.Inputs.Any())
                 {
-                    var value = applyGoTemplateText(Input.Value);
-                    queryCollection.Add(Input.Key, value);
+                    foreach (var input in Login.Inputs)
+                    {
+                        var value = applyGoTemplateText(input.Value);
+                        queryCollection.Add(input.Key, value);
+                    }
                 }
 
-                var LoginUrl = resolvePath(Login.Path + "?" + queryCollection.GetQueryString()).ToString();
+                var loginUrl = resolvePath(Login.Path + "?" + queryCollection.GetQueryString()).ToString();
                 configData.CookieHeader.Value = null;
-                var loginResult = await RequestWithCookiesAsync(LoginUrl, referer: SiteLink, headers: headers);
+                var loginResult = await RequestWithCookiesAsync(loginUrl, referer: SiteLink, headers: headers);
                 configData.CookieHeader.Value = loginResult.Cookies;
 
-                checkForError(loginResult, Definition.Login.Error);
+                checkForError(loginResult, Login.Error);
             }
             else if (Login.Method == "oneurl")
             {
@@ -793,11 +812,11 @@ namespace Jackett.Common.Indexers
                 var loginResult = await RequestWithCookiesAsync(LoginUrl, referer: SiteLink, headers: headers);
                 configData.CookieHeader.Value = loginResult.Cookies;
 
-                checkForError(loginResult, Definition.Login.Error);
+                checkForError(loginResult, Login.Error);
             }
             else
             {
-                throw new NotImplementedException("Login method " + Definition.Login.Method + " not implemented");
+                throw new NotImplementedException($"Login method {Login.Method} not implemented");
             }
 
             logger.Debug($"CardigannIndexer ({Id}): Cookies after login: {CookieHeader}");
@@ -805,17 +824,18 @@ namespace Jackett.Common.Indexers
             return true;
         }
 
-        protected string getRedirectDomainHint(string requestUrl, string redirectUrl)
+        protected string GetRedirectDomainHint(string requestUrl, string redirectUrl)
         {
-            if (requestUrl.StartsWith(SiteLink) && !redirectUrl.StartsWith(SiteLink))
+            if (redirectUrl.IsNullOrWhiteSpace() || !requestUrl.StartsWith(SiteLink) || redirectUrl.StartsWith(SiteLink))
             {
-                var uri = new Uri(redirectUrl);
-                return uri.Scheme + "://" + uri.Host + "/";
+                return null;
             }
-            return null;
+
+            var uri = new Uri(redirectUrl);
+            return uri.Scheme + "://" + uri.Host + "/";
         }
 
-        protected string getRedirectDomainHint(WebResult result) => getRedirectDomainHint(result.Request.Url, result.RedirectingTo);
+        protected string GetRedirectDomainHint(WebResult result) => GetRedirectDomainHint(result.Request.Url, result.RedirectingTo);
 
         protected async Task<bool> TestLogin()
         {
@@ -829,16 +849,23 @@ namespace Jackett.Common.Indexers
             var headers = ParseCustomHeaders(Definition.Login?.Headers ?? Definition.Search?.Headers, GetBaseTemplateVariables());
             var testResult = await RequestWithCookiesAsync(LoginTestUrl, headers: headers);
 
+            // Follow the redirect on login if the domain doesn't change
+            if (testResult.IsRedirect && GetRedirectDomainHint(testResult) == null)
+            {
+                await FollowIfRedirect(testResult, LoginTestUrl, overrideCookies: testResult.Cookies, accumulateCookies: true, maxRedirects: 1);
+            }
+
             if (testResult.IsRedirect)
             {
                 var errormessage = $"Login Failed, got redirected to: {testResult.RedirectingTo}";
-                var DomainHint = getRedirectDomainHint(testResult);
-                if (DomainHint != null)
+                var domainHint = GetRedirectDomainHint(testResult);
+
+                if (domainHint != null)
                 {
-                    errormessage += " Try changing the indexer URL to " + DomainHint + ".";
+                    errormessage += " Try changing the indexer URL to " + domainHint + ".";
                     if (Definition.Followredirect)
                     {
-                        configData.SiteLink.Value = DomainHint;
+                        configData.SiteLink.Value = domainHint;
                         SiteLink = configData.SiteLink.Value;
                         SaveConfig();
                         errormessage += " Updated site link, please try again.";
@@ -860,40 +887,52 @@ namespace Jackett.Common.Indexers
             return true;
         }
 
-        protected bool CheckIfLoginIsNeeded(WebResult Result, IHtmlDocument document)
+        private bool CheckIfLoginIsNeeded(WebResult response)
         {
-            if (Result.IsRedirect)
+            if (response.IsRedirect)
             {
-                var DomainHint = getRedirectDomainHint(Result);
-                if (DomainHint != null)
+                var domainHint = GetRedirectDomainHint(response);
+
+                if (domainHint != null)
                 {
-                    var errormessage = "Got redirected to another domain. Try changing the indexer URL to " + DomainHint + ".";
+                    var errorMessage = "Got redirected to another domain. Try changing the indexer URL to " + domainHint + ".";
+
                     if (Definition.Followredirect)
                     {
-                        configData.SiteLink.Value = DomainHint;
+                        configData.SiteLink.Value = domainHint;
                         SiteLink = configData.SiteLink.Value;
                         SaveConfig();
-                        errormessage += " Updated site link, please try again.";
+                        errorMessage += " Updated site link, please try again.";
                     }
-                    throw new ExceptionWithConfigData(errormessage, configData);
+
+                    throw new ExceptionWithConfigData(errorMessage, configData);
                 }
 
-                logger.Error($"Redirected to: {Result.RedirectingTo}");
+                logger.Error($"Redirected to: {response.RedirectingTo}");
 
                 return true;
             }
 
             if (Definition.Login == null || Definition.Login.Test == null)
-                return false;
-
-            if (Definition.Login.Test.Selector != null)
             {
+                return false;
+            }
+
+            var contentType = response.Headers.TryGetValue("Content-Type", out var header) ? header.FirstOrDefault() : null;
+
+            if (Definition.Login.Test.Selector != null && (contentType?.Contains("text/html") ?? true))
+            {
+                var parser = new HtmlParser();
+                var document = parser.ParseDocument(response.ContentString);
+
                 var selection = document.QuerySelectorAll(Definition.Login.Test.Selector);
+
                 if (selection.Length == 0)
                 {
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -910,7 +949,7 @@ namespace Jackett.Common.Indexers
             }
         }
 
-        public async Task<ConfigurationData> GetConfigurationForSetup(bool automaticlogin)
+        public async Task<ConfigurationData> GetConfigurationForSetup(bool automaticlogin, string cookies = null)
         {
             var Login = Definition.Login;
 
@@ -924,7 +963,7 @@ namespace Jackett.Common.Indexers
             if (Login.Cookies != null)
                 configData.CookieHeader.Value = string.Join("; ", Login.Cookies);
 
-            landingResult = await RequestWithCookiesAsync(LoginUrl.AbsoluteUri, referer: SiteLink, headers: headers);
+            landingResult = await RequestWithCookiesAsync(LoginUrl.AbsoluteUri, cookies, referer: SiteLink, headers: headers);
 
             // Some sites have a temporary redirect before the login page, we need to process it.
             if (Definition.Followredirect)
@@ -1214,18 +1253,22 @@ namespace Jackett.Common.Indexers
 
             if (Selector.Case != null)
             {
-                foreach (var Case in Selector.Case)
+                foreach (var switchCase in Selector.Case)
                 {
-                    if (selection.Matches(Case.Key) || QuerySelector(selection, Case.Key) != null)
+                    if (selection.Matches(switchCase.Key) || QuerySelector(selection, switchCase.Key) != null)
                     {
-                        value = Case.Value;
+                        value = applyGoTemplateText(switchCase.Value, variables);
                         break;
                     }
                 }
+
                 if (value == null)
                 {
                     if (required)
-                        throw new Exception(string.Format("None of the case selectors \"{0}\" matched {1}", string.Join(",", Selector.Case), selection.ToHtmlPretty()));
+                    {
+                        throw new Exception($"None of the case selectors \"{string.Join(",", Selector.Case)}\" matched {selection.ToHtmlPretty()}");
+                    }
+
                     return null;
                 }
             }
@@ -1262,15 +1305,22 @@ namespace Jackett.Common.Indexers
                 selectorSelector = JsonParseFieldSelector(parentObj, selectorSelector);
 
                 JToken selection = null;
+
                 if (selectorSelector != null)
+                {
                     selection = parentObj.SelectToken(selectorSelector);
+                }
 
                 if (selection == null)
                 {
                     if (required)
-                        throw new Exception(string.Format("Selector \"{0}\" didn't match {1}", selectorSelector, parentObj.ToString()));
+                    {
+                        throw new Exception($"Selector \"{selectorSelector}\" didn't match {parentObj}");
+                    }
+
                     return null;
                 }
+
                 if (selection.Type is JTokenType.Array)
                 {
                     // turn this json array into a comma delimited string
@@ -1278,23 +1328,29 @@ namespace Jackett.Common.Indexers
                     value = String.Join(",", valueArray);
                 }
                 else
+                {
                     value = selection.Value<string>();
+                }
             }
 
             if (Selector.Case != null)
             {
-                foreach (var Case in Selector.Case)
+                foreach (var switchCase in Selector.Case)
                 {
-                    if (value.Equals(Case.Key) || Case.Key.Equals("*"))
+                    if ((value != null && value.Equals(switchCase.Key)) || switchCase.Key.Equals("*"))
                     {
-                        value = Case.Value;
+                        value = applyGoTemplateText(switchCase.Value, variables);
                         break;
                     }
                 }
+
                 if (value == null)
                 {
                     if (required)
-                        throw new Exception(string.Format("None of the case selectors \"{0}\" matched {1}", string.Join(",", Selector.Case), parentObj.ToString()));
+                    {
+                        throw new Exception($"None of the case selectors \"{string.Join(",", Selector.Case)}\" matched {parentObj}");
+                    }
+
                     return null;
                 }
             }
@@ -1450,12 +1506,40 @@ namespace Jackett.Common.Indexers
                     searchUrl, method: method, headers: headers, data: queryCollection);
 
                 if (response.IsRedirect && SearchPath.Followredirect)
+                {
                     await FollowIfRedirect(response);
+                }
 
                 var results = response.ContentString;
 
                 if (SearchPath.Response != null && SearchPath.Response.Type.Equals("json"))
                 {
+                    // check if we need to login again
+                    var loginNeeded = CheckIfLoginIsNeeded(response);
+
+                    if (loginNeeded)
+                    {
+                        logger.Info("CardigannIndexer({0}): Relogin required", Id);
+
+                        var loginResult = await DoLogin(response.Cookies);
+
+                        if (!loginResult)
+                        {
+                            throw new Exception("Relogin failed");
+                        }
+
+                        await TestLogin();
+
+                        response = await RequestWithCookiesAsync(searchUrl, method: method, data: queryCollection, headers: headers);
+
+                        if (response.IsRedirect && SearchPath.Followredirect)
+                        {
+                            await FollowIfRedirect(response);
+                        }
+
+                        results = response.ContentString;
+                    }
+
                     if (response.Status != HttpStatusCode.OK)
                     {
                         throw new Exception($"Error Parsing Json Response: Status={response.Status} Response={results}");
@@ -1469,7 +1553,18 @@ namespace Jackett.Common.Indexers
                         continue;
                     }
 
-                    var parsedJson = JToken.Parse(results);
+                    JToken parsedJson;
+
+                    try
+                    {
+                        parsedJson = JToken.Parse(results);
+                    }
+                    catch (JsonReaderException ex)
+                    {
+                        logger.Warn("Unexpected response content ({0} bytes): {1}", response.ContentBytes.Length, response.ContentString);
+
+                        throw new Exception("Error Parsing Json Response", ex);
+                    }
 
                     if (parsedJson == null)
                     {
@@ -1610,37 +1705,46 @@ namespace Jackett.Common.Indexers
                         }
                         else
                         {
-                            var SearchResultParser = new HtmlParser();
-                            var SearchResultDocument = SearchResultParser.ParseDocument(results);
-
                             // check if we need to login again
-                            var loginNeeded = CheckIfLoginIsNeeded(response, SearchResultDocument);
+                            var loginNeeded = CheckIfLoginIsNeeded(response);
+
                             if (loginNeeded)
                             {
-                                logger.Info(string.Format("CardigannIndexer ({0}): Relogin required", Id));
-                                var LoginResult = await DoLogin();
-                                if (!LoginResult)
-                                    throw new Exception(string.Format("Relogin failed"));
+                                logger.Info("CardigannIndexer({0}): Relogin required", Id);
+
+                                var loginResult = await DoLogin(response.Cookies);
+
+                                if (!loginResult)
+                                {
+                                    throw new Exception("Relogin failed");
+                                }
+
                                 await TestLogin();
+
                                 response = await RequestWithCookiesAsync(searchUrl, method: method, data: queryCollection, headers: headers);
+
                                 if (response.IsRedirect && SearchPath.Followredirect)
+                                {
                                     await FollowIfRedirect(response);
+                                }
 
                                 results = response.ContentString;
-                                SearchResultDocument = SearchResultParser.ParseDocument(results);
                             }
+
+                            var searchResultParser = new HtmlParser();
+                            var searchResultDocument = searchResultParser.ParseDocument(results);
 
                             checkForError(response, Definition.Search.Error);
 
                             if (Search.Preprocessingfilters != null)
                             {
                                 results = applyFilters(results, Search.Preprocessingfilters, variables);
-                                SearchResultDocument = SearchResultParser.ParseDocument(results);
+                                searchResultDocument = searchResultParser.ParseDocument(results);
                                 logger.Debug(string.Format("CardigannIndexer ({0}): result after preprocessingfilters: {1}", Id, results));
                             }
 
                             var rowsSelector = applyGoTemplateText(Search.Rows.Selector, variables);
-                            rowsDom = SearchResultDocument.QuerySelectorAll(rowsSelector);
+                            rowsDom = searchResultDocument.QuerySelectorAll(rowsSelector);
                         }
 
                         var Rows = rowsDom.ToList();
@@ -1828,12 +1932,15 @@ namespace Jackett.Common.Indexers
         protected async Task<WebResult> HandleRedirectableRequestAsync(string url, Dictionary<string, string> headers = null, int maxRedirects = 5)
         {
             var response = await RequestWithCookiesAsync(url, headers: headers);
+
             for (var i = 0; i < maxRedirects; i++)
             {
-                if (response.IsRedirect)
-                    response = await RequestWithCookiesAsync(response.RedirectingTo, headers: headers);
-                else
+                if (!response.IsRedirect)
+                {
                     break;
+                }
+
+                response = await RequestWithCookiesAsync(response.RedirectingTo, headers: headers);
             }
             return response;
         }
@@ -2266,6 +2373,7 @@ namespace Jackett.Common.Indexers
 
         private JArray JsonParseRowsSelector(JToken parsedJson, string rowSelector)
         {
+            rowSelector = applyGoTemplateText(rowSelector);
             var selector = rowSelector.Split(':')[0];
 
             try

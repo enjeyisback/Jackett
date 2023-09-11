@@ -10,18 +10,20 @@ links:
 
 caps:
   categorymappings:
-    - {id: 401, cat: Movies, desc: "Movies/综合-电影"}
-    - {id: 422, cat: TV/Documentary, desc: "Documentaries/综合-纪录片"}
-    - {id: 402, cat: TV, desc: "TV Series/综合-电视剧"}
-    - {id: 403, cat: TV, desc: "TV Shows/综合-综艺"}
-    - {id: 406, cat: Audio/Video, desc: "Music Videos/综合-音乐MV"}
-    - {id: 408, cat: Audio, desc: "Music/综合-音乐"}
-    - {id: 409, cat: Other, desc: "Misc/综合-其他"}
-    - {id: 417, cat: TV/Anime, desc: "Anime China/动漫-国漫"}
-    - {id: 418, cat: TV/Anime, desc: "Anime Japan/动漫-日漫"}
-    - {id: 419, cat: TV/Anime, desc: "Anime Korean/动漫-韩漫"}
-    - {id: 420, cat: TV/Anime, desc: "Anime Europe and America/动漫-欧美"}
     - {id: 421, cat: TV/Anime, desc: "Anime Other/动漫-其他"}
+    - {id: 420, cat: TV/Anime, desc: "Anime Europe and America/动漫-欧美"}
+    - {id: 419, cat: TV/Anime, desc: "Anime Korean/动漫-韩漫"}
+    - {id: 418, cat: TV/Anime, desc: "Anime Japan/动漫-日漫"}
+    - {id: 417, cat: TV/Anime, desc: "Anime China/动漫-国漫"}
+    - {id: 409, cat: Other, desc: "Misc/综合-其他"}
+    - {id: 403, cat: TV, desc: "TV Shows/综合-综艺"}
+    - {id: 402, cat: TV, desc: "TV Series/综合-电视剧"}
+    - {id: 422, cat: TV/Documentary, desc: "Documentaries/综合-纪录片"}
+    - {id: 401, cat: Movies, desc: "Movies/综合-电影"}
+    - {id: 423, cat: Audio, desc: "Music/声音类-音乐"}
+    - {id: 424, cat: Audio/Audiobook, desc: "Music Audiobooks/声音类-有声书"}
+    - {id: 425, cat: PC, desc: "Software/软件游戏-软件"}
+    - {id: 426, cat: Console, desc: "Games/软件游戏-游戏"}
 
   modes:
     search: [q]
@@ -179,11 +181,16 @@ search:
         img.pro_2up: 2
         "*": 1
     minimumratio:
-      text: 1.0
+      case:
+        img[title="H&R"]: 1.0
+        "*": 0.4
     minimumseedtime:
-      # 1 day (as seconds = 24 x 60 x 60)
-      text: 86400
+      # H&R 3 days (as seconds = 3 x 24 x 60 x 60)
+      # normal 1 day (as seconds = 24 x 60 x 60)
+      case:
+        img[title="H&R"]: 259200
+        "*": 86400
     description:
       selector: td.rowfollow:nth-child(2)
       remove: a, b, font, img, span
-# NexusPHP v1.8.2 2023-05-08
+# NexusPHP v1.8.7 2023-08-29

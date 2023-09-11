@@ -214,7 +214,8 @@ namespace Jackett.Common.Indexers.Abstract
                 await ApplyConfiguration(null);
                 response = await RequestWithCookiesAndRetryAsync(searchUrl);
             }
-            else if (response.ContentString != null && response.ContentString.Contains("failure") && useApiKey)
+
+            if (response.ContentString != null && response.ContentString.Contains("failure") && useApiKey)
             {
                 // reason for failure should be explained.
                 var jsonError = JObject.Parse(response.ContentString);
@@ -222,9 +223,15 @@ namespace Jackett.Common.Indexers.Abstract
                 throw new Exception(errorReason);
             }
 
+            if ((int)response.Status >= 400)
+            {
+                throw new Exception($"Invalid status code {(int)response.Status} ({response.Status}) received from indexer");
+            }
+
             try
             {
                 var json = JObject.Parse(response.ContentString);
+
                 foreach (JObject r in json["response"]["results"])
                 {
                     // groupTime may be a unixTime or a datetime string

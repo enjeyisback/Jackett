@@ -9,19 +9,15 @@ requestDelay: 2.5 # 2.5 requests per second (2 causes problems)
 links:
   # dont forget to update the details, download and poster replace args
   - https://yts.mx/
-  - https://yts.unblockit.asia/
-  - https://yts.unblockninja.com/
-  - https://yts.mrunblock.life/
-  - https://yts.nocensor.click/
+  - https://yts.unblockit.esq/
+  - https://yts.ninjaproxy1.com/
+  - https://yts.mrunblock.bond/
+  - https://yts.nocensor.cloud/
 legacylinks:
   - https://yts.ag/
   - https://yts.am/
   - https://yts.lt/
-  - https://yts.unblockit.cam/
   - https://yts.nocensor.biz/
-  - https://yts.unblockit.day/
-  - https://yts.unblockit.llc/
-  - https://yts.unblockit.blue/
   - https://yts.unblockit.name/
   - https://yts.nocensor.sbs/
   - https://yts.unblockit.ist/
@@ -38,6 +34,13 @@ legacylinks:
   - https://yts.unblockit.boo/
   - https://yts.mrunblock.guru/
   - https://yts.unblockit.click/
+  - https://yts.unblockit.asia/
+  - https://yts.unblockit.mov/
+  - https://yts.mrunblock.life/
+  - https://yts.unblockit.rsvp/
+  - https://yts.nocensor.click/
+  - https://yts.unblockninja.com/
+  - https://yts.unblockit.vegas/
 
 caps:
   categorymappings:
@@ -61,12 +64,13 @@ search:
         type: json
 
   inputs:
-    # ignore ' (e.g. search for america's Next Top Model)
     query_term: "{{ if .Query.IMDBID }}{{ .Query.IMDBID }}{{ else }}{{ .Keywords }}{{ end }}"
     # without this the API sometimes returns nothing
     limit: 50
-    sort: date_added
+    sort_by: date_added
+    order_by: desc
   keywordsfilters:
+    # ignore ' (e.g. search for america's Next Top Model)
     - name: re_replace
       args: ["[^\\w]+", " "]
 
@@ -90,8 +94,14 @@ search:
         "2160p": 46
         "3D": 47
         "*": 45
+    _audio:
+      selector: audio_channels
+    _depth:
+      selector: bit_depth
     _type:
       selector: type
+    _codec:
+      selector: video_codec
     year:
       selector: ..year
     title_default:
@@ -106,9 +116,8 @@ search:
       filters:
         - name: replace
           args: [":", ""]
-        # append type: BRRip or WEBRip, resolves #3558 via #4577
         - name: append
-          args: " {{ .Result._quality }} {{ if eq .Result._type \"web\" }}WEBRip{{ else }}BRRip{{ end }} -YTS"
+          args: " {{ .Result._quality }} {{ if eq .Result._type \"web\" }}WEBRip{{ else }}BRRip{{ end }} {{ if eq .Result._audio \"5.1\" }}5.1 {{ else }}{{ end }}{{ if eq .Result._depth \"10\" }}10Bit {{ else }}{{ end }}{{ .Result._codec }} -YTS"
     details:
       selector: ..url
       filters:
